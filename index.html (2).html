@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Calculadora </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c3c4b 0%, #7976a7 25%, #1c1238 50%, #859ed3 75%, #2c3c4b 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .contenedor {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 30px 80px rgba(255, 105, 180, 0.3);
+            max-width: 450px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .titulo {
+            background: linear-gradient(135deg, #ff6ec4, #7873f5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .subtitulo {
+            color: #ff6ec4;
+            font-size: 14px;
+        }
+
+        .pantalla {
+            background: linear-gradient(135deg, #ffeef8, #fff5f5);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            min-height: 100px;
+            text-align: right;
+            border: 3px solid #ffc9e5;
+        }
+
+        .operacion {
+            color: #ff6ec4;
+            font-size: 16px;
+            min-height: 25px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .resultado {
+            color: #d946ef;
+            font-size: 38px;
+            font-weight: bold;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            background: #fff;
+            border: 2px solid #ffc9e5;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            font-weight: 600;
+            color: #ff6ec4;
+        }
+
+        .tab:hover {
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #243f7a, #3f1646);
+            color: white;
+            border-color: #d946ef;
+        }
+
+        .panel-botones {
+            display: none;
+        }
+
+        .panel-botones.active {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            padding: 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 110, 196, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .numero {
+            background: linear-gradient(135deg, #fff, #ffe5f3);
+            color: #d946ef;
+            border: 2px solid #ffc9e5;
+        }
+
+        .operador {
+            background: linear-gradient(135deg, #ff6ec4, #ff8ed4);
+            color: white;
+        }
+
+        .funcion {
+            background: linear-gradient(135deg, #a78bfa, #c084fc);
+            color: white;
+            font-size: 16px;
+        }
+
+        .cientifico {
+            background: linear-gradient(135deg, #60a5fa, #818cf8);
+            color: white;
+            font-size: 16px;
+        }
+
+        .conversion {
+            background: linear-gradient(135deg, #34d399, #6ee7b7);
+            color: white;
+            font-size: 16px;
+        }
+
+        .estadistica {
+            background: linear-gradient(135deg, #fbbf24, #fcd34d);
+            color: white;
+            font-size: 16px;
+        }
+
+        .igual {
+            background: linear-gradient(135deg, #f472b6, #ec4899);
+            color: white;
+            grid-column: span 2;
+            font-size: 24px;
+        }
+
+        .limpiar {
+            background: linear-gradient(135deg, #fb7185, #f43f5e);
+            color: white;
+        }
+
+        .cero {
+            grid-column: span 2;
+        }
+
+        .borrar {
+            background: linear-gradient(135deg, #fdba74, #fb923c);
+            color: white;
+        }
+
+        .memoria {
+            background: linear-gradient(135deg, #a3e635, #84cc16);
+            color: white;
+            font-size: 14px;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #ff6ec4;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .memoria-display {
+            background: rgba(236, 72, 153, 0.1);
+            padding: 8px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ec4899;
+            font-size: 12px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="contenedor">
+        <div class="header">
+            <h1 class="titulo"> Calculadora </h1>
+            <p class="subtitulo">hecho por las chicas (bellas) del grupo 1 y los otros varones que tambien estan</p>
+        </div>
+
+        <div class="memoria-display" id="memoriaDisplay"></div>
+        
+        <div class="pantalla">
+            <div class="operacion" id="operacion"></div>
+            <div class="resultado" id="resultado">0</div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="cambiarTab('basica')">Básica 🎀</div>
+            <div class="tab" onclick="cambiarTab('avanzada')">Avanzada ✨</div>
+            <div class="tab" onclick="cambiarTab('cientifica')">Científica 🔬</div>
+            
+        </div>
+
+        <!-- Panel Básica -->
+        <div class="panel-botones active" id="basica">
+            <button class="limpiar" onclick="limpiar()">AC</button>
+            <button class="borrar" onclick="borrar()">⌫</button>
+            <button class="funcion" onclick="agregarFuncion('percent')">%</button>
+            <button class="operador" onclick="agregar('/')">÷</button>
+
+            <button class="numero" onclick="agregar('7')">7</button>
+            <button class="numero" onclick="agregar('8')">8</button>
+            <button class="numero" onclick="agregar('9')">9</button>
+            <button class="operador" onclick="agregar('*')">×</button>
+
+            <button class="numero" onclick="agregar('4')">4</button>
+            <button class="numero" onclick="agregar('5')">5</button>
+            <button class="numero" onclick="agregar('6')">6</button>
+            <button class="operador" onclick="agregar('-')">-</button>
+
+            <button class="numero" onclick="agregar('1')">1</button>
+            <button class="numero" onclick="agregar('2')">2</button>
+            <button class="numero" onclick="agregar('3')">3</button>
+            <button class="operador" onclick="agregar('+')">+</button>
+
+            <button class="numero cero" onclick="agregar('0')">0</button>
+            <button class="numero" onclick="agregar('.')">.</button>
+            <button class="igual" onclick="calcular()">=</button>
+        </div>
+
+        <!-- Panel Avanzada -->
+        <div class="panel-botones" id="avanzada">
+            <button class="funcion" onclick="agregarFuncion('sqrt')">√x</button>
+            <button class="funcion" onclick="agregarFuncion('pow2')">x²</button>
+            <button class="funcion" onclick="agregarFuncion('pow3')">x³</button>
+            <button class="funcion" onclick="agregarFuncion('powY')">xʸ</button>
+
+            <button class="funcion" onclick="agregarFuncion('cbrt')">³√x</button>
+            <button class="funcion" onclick="agregarFuncion('inv')">1/x</button>
+            <button class="funcion" onclick="agregar('**')">^</button>
+            <button class="funcion" onclick="agregarFuncion('abs')">|x|</button>
+
+           
+            <button class="numero" onclick="agregar('7')">7</button>
+            <button class="numero" onclick="agregar('8')">8</button>
+            <button class="numero" onclick="agregar('9')">9</button>
+            <button class="operador" onclick="agregar('/')">÷</button>
+
+            <button class="numero" onclick="agregar('4')">4</button>
+            <button class="numero" onclick="agregar('5')">5</button>
+            <button class="numero" onclick="agregar('6')">6</button>
+            <button class="operador" onclick="agregar('*')">×</button>
+
+            <button class="numero" onclick="agregar('1')">1</button>
+            <button class="numero" onclick="agregar('2')">2</button>
+            <button class="numero" onclick="agregar('3')">3</button>
+            <button class="operador" onclick="agregar('-')">-</button>
+
+            <button class="limpiar" onclick="limpiar()">C</button>
+            <button class="numero" onclick="agregar('0')">0</button>
+            <button class="numero" onclick="agregar('.')">.</button>
+            <button class="operador" onclick="agregar('+')">+</button>
+
+            <button class="igual" style="grid-column: span 4;" onclick="calcular()">=</button>
+        </div>
+
+        <!-- Panel Científica -->
+        <div class="panel-botones" id="cientifica">
+            <button class="cientifico" onclick="agregarFuncion('sin')">sin</button>
+            <button class="cientifico" onclick="agregarFuncion('cos')">cos</button>
+            <button class="cientifico" onclick="agregarFuncion('tan')">tan</button>
+            <button class="cientifico" onclick="agregarFuncion('pi')">π</button>
+
+            <button class="cientifico" onclick="agregarFuncion('asin')">asin</button>
+            <button class="cientifico" onclick="agregarFuncion('acos')">acos</button>
+            <button class="cientifico" onclick="agregarFuncion('atan')">atan</button>
+            <button class="cientifico" onclick="agregarFuncion('e')">e</button>
+
+    
+
+            <button class="numero" onclick="agregar('7')">7</button>
+            <button class="numero" onclick="agregar('8')">8</button>
+            <button class="numero" onclick="agregar('9')">9</button>
+            <button class="operador" onclick="agregar('/')">÷</button>
+
+            <button class="numero" onclick="agregar('4')">4</button>
+            <button class="numero" onclick="agregar('5')">5</button>
+            <button class="numero" onclick="agregar('6')">6</button>
+            <button class="operador" onclick="agregar('*')">×</button>
+
+            <button class="numero" onclick="agregar('1')">1</button>
+            <button class="numero" onclick="agregar('2')">2</button>
+            <button class="numero" onclick="agregar('3')">3</button>
+            <button class="operador" onclick="agregar('-')">-</button>
+
+            <button class="limpiar" onclick="limpiar()">C</button>
+            <button class="numero" onclick="agregar('0')">0</button>
+            <button class="numero" onclick="agregar('.')">.</button>
+            <button class="operador" onclick="agregar('+')">+</button>
+
+            <button class="igual" style="grid-column: span 4;" onclick="calcular()">=</button>
+        </div>
+
+        <!-- Panel Especial -->
+       
+
+        <div class="footer">
+            ✨ Hecho con amor (y otras cositas)💕 Todas las funciones funcionan ✨
+        </div>
+    </div>
+
+    <script>
+        let operacionActual = '';
+        let resultadoActual = '0';
+        let operacionMostrar = '';
+        let memoria = 0;
+
+        function actualizar() {
+            document.getElementById('resultado').textContent = resultadoActual;
+            document.getElementById('operacion').textContent = operacionMostrar;
+        }
+
+        function cambiarTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.panel-botones').forEach(p => p.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab).classList.add('active');
+        }
+
+        function agregar(valor) {
+            if (resultadoActual === '0' && valor !== '.') {
+                resultadoActual = valor;
+            } else {
+                resultadoActual += valor;
+            }
+            operacionActual += valor;
+            operacionMostrar += valor;
+            actualizar();
+        }
+
+        function borrar() {
+            if (resultadoActual.length > 1) {
+                resultadoActual = resultadoActual.slice(0, -1);
+                operacionActual = operacionActual.slice(0, -1);
+                operacionMostrar = operacionMostrar.slice(0, -1);
+            } else {
+                resultadoActual = '0';
+                operacionActual = '';
+                operacionMostrar = '';
+            }
+            actualizar();
+        }
+
+        function agregarFuncion(func) {
+            const num = parseFloat(resultadoActual);
+            let resultado;
+
+            switch(func) {
+                case 'sqrt':
+                    resultado = Math.sqrt(num);
+                    operacionMostrar = `√(${num})`;
+                    break;
+                case 'pow2':
+                    resultado = Math.pow(num, 2);
+                    operacionMostrar = `${num}²`;
+                    break;
+                case 'pow3':
+                    resultado = Math.pow(num, 3);
+                    operacionMostrar = `${num}³`;
+                    break;
+                case 'cbrt':
+                    resultado = Math.cbrt(num);
+                    operacionMostrar = `³√(${num})`;
+                    break;
+                case 'inv':
+                    resultado = 1 / num;
+                    operacionMostrar = `1/${num}`;
+                    break;
+                case 'abs':
+                    resultado = Math.abs(num);
+                    operacionMostrar = `|${num}|`;
+                    break;
+                case 'percent':
+                    resultado = num / 100;
+                    operacionMostrar = `${num}%`;
+                    break;
+                case 'sin':
+                    resultado = Math.sin(num * Math.PI / 180);
+                    operacionMostrar = `sin(${num}°)`;
+                    break;
+                case 'cos':
+                    resultado = Math.cos(num * Math.PI / 180);
+                    operacionMostrar = `cos(${num}°)`;
+                    break;
+                case 'tan':
+                    resultado = Math.tan(num * Math.PI / 180);
+                    operacionMostrar = `tan(${num}°)`;
+                    break;
+                case 'asin':
+                    resultado = Math.asin(num) * 180 / Math.PI;
+                    operacionMostrar = `asin(${num})`;
+                    break;
+                case 'acos':
+                    resultado = Math.acos(num) * 180 / Math.PI;
+                    operacionMostrar = `acos(${num})`;
+                    break;
+                case 'atan':
+                    resultado = Math.atan(num) * 180 / Math.PI;
+                    operacionMostrar = `atan(${num})`;
+                    break;
+                case 'log':
+                    resultado = Math.log10(num);
+                    operacionMostrar = `log(${num})`;
+                    break;
+                case 'ln':
+                    resultado = Math.log(num);
+                    operacionMostrar = `ln(${num})`;
+                    break;
+                case 'exp':
+                    resultado = Math.exp(num);
+                    operacionMostrar = `e^${num}`;
+                    break;
+                case 'factorial':
+                    resultado = 1;
+                    for(let i = 2; i <= num; i++) resultado *= i;
+                    operacionMostrar = `${num}!`;
+                    break;
+                case 'pi':
+                    resultado = Math.PI;
+                    operacionMostrar = 'π';
+                    break;
+                case 'e':
+                    resultado = Math.E;
+                    operacionMostrar = 'e';
+                    break;
+                case 'rand':
+                    resultado = Math.random();
+                    operacionMostrar = 'random()';
+                    break;
+                case 'round':
+                    resultado = Math.round(num);
+                    operacionMostrar = `round(${num})`;
+                    break;
+                case 'floor':
+                    resultado = Math.floor(num);
+                    operacionMostrar = `floor(${num})`;
+                    break;
+                case 'ceil':
+                    resultado = Math.ceil(num);
+                    operacionMostrar = `ceil(${num})`;
+                    break;
+                case 'deg':
+                    resultado = num * 180 / Math.PI;
+                    operacionMostrar = `${num} rad → °`;
+                    break;
+                case 'rad':
+                    resultado = num * Math.PI / 180;
+                    operacionMostrar = `${num}° → rad`;
+                    break;
+                case 'sign':
+                    resultado = Math.sign(num);
+                    operacionMostrar = `sign(${num})`;
+                    break;
+                case 'mod':
+                    operacionMostrar = `${num} mod `;
+                    resultadoActual = resultado.toString();
+                    actualizar();
+                    return;
+            }
+
+            resultadoActual = resultado.toString();
+            operacionActual = resultado.toString();
+            actualizar();
+        }
+
+        function calcular() {
+            try {
+                const resultado = eval(operacionActual);
+                operacionMostrar += ' =';
+                resultadoActual = resultado.toString();
+                operacionActual = resultado.toString();
+                actualizar();
+            } catch (error) {
+                resultadoActual = 'Error';
+                actualizar();
+            }
+        }
+
+        function limpiar() {
+            operacionActual = '';
+            resultadoActual = '0';
+            operacionMostrar = '';
+            actualizar();
+        }
+
+        function memoriaGuardar() {
+            memoria = parseFloat(resultadoActual);
+            actualizar();
+        }
+
+        function memoriaRecuperar() {
+            resultadoActual = memoria.toString();
+            operacionActual = memoria.toString();
+            actualizar();
+        }
+
+        function memoriaAgregar() {
+            memoria += parseFloat(resultadoActual);
+            actualizar();
+        }
+
+        function memoriaLimpiar() {
+            memoria = 0;
+            actualizar();
+        }
+
+        actualizar();
+    </script>
+</body>
+</html>
